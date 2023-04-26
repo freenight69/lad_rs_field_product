@@ -8,15 +8,24 @@ Description: A wrapper function to process the Sentinel-2 MSI of base
 """
 
 import ee
+import geemap
 import datetime
 import wrapper
 
+
+# set VPN port
+geemap.set_proxy(port=5188)
+try:
+    ee.Initialize()
+except:
+    ee.Authenticate()
+    ee.Initialize()
 
 ###########################################
 # Lingang Preprocessing
 ###########################################
 
-def lingang_preprocess(queryDate, export_crs, export_dir):
+def lingang_preprocess(queryDate, export_crs, export_dir, trans_dir):
     sdate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
     edate = (sdate + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
     roi_lingang = ee.Geometry.Polygon(
@@ -63,8 +72,7 @@ def lingang_preprocess(queryDate, export_crs, export_dir):
         ]
     )
     
-    lingang_parameter = {'VPN_PORT': 5188,
-                        'START_DATE': sdate,
+    lingang_parameter = {'START_DATE': sdate,
                         'END_DATE': edate,
                         'BANDS': ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12'],
                         'ROI': roi_lingang,
@@ -77,9 +85,12 @@ def lingang_preprocess(queryDate, export_crs, export_dir):
                         'EXPORT_NAME': 'lingang',
                         'CLIP_TO_ROI': True,
                         'SAVE_LOCAL': True,
+                        'COOR_TRANS': True,
+                        'TRANS_CRS': 'gcj02',
                         'RENDER': False,
                         'RESAMPLE_SCALE': 150,
-                        'LOCAL_DIR': export_dir
+                        'DOWNLOAD_DIR': export_dir,
+                        'TRANS_DIR': trans_dir
                         }
     
     # processed s2 collection
@@ -94,7 +105,7 @@ def lingang_preprocess(queryDate, export_crs, export_dir):
 # Dancheng Preprocessing
 ###########################################
 
-def dancheng_preprocess(queryDate, export_crs, export_dir):
+def dancheng_preprocess(queryDate, export_crs, export_dir, trans_dir):
     sdate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
     edate = (sdate + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
     roi_dancheng = ee.Geometry.Polygon(
@@ -120,8 +131,7 @@ def dancheng_preprocess(queryDate, export_crs, export_dir):
         ]
     )
     
-    dancheng_parameter = {'VPN_PORT': 5188,
-                        'START_DATE': sdate,
+    dancheng_parameter = {'START_DATE': sdate,
                         'END_DATE': edate,
                         'BANDS': ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12'],
                         'ROI': roi_dancheng,
@@ -134,9 +144,12 @@ def dancheng_preprocess(queryDate, export_crs, export_dir):
                         'CLIP_TO_ROI': True,
                         'EXPORT_NAME': 'dancheng',
                         'SAVE_LOCAL': True,
+                        'COOR_TRANS': True,
+                        'TRANS_CRS': 'gcj02',
                         'RENDER': False,
                         'RESAMPLE_SCALE': 150,
-                        'LOCAL_DIR': export_dir
+                        'DOWNLOAD_DIR': export_dir,
+                        'TRANS_DIR': trans_dir
                         }
     
     # processed s2 collection
