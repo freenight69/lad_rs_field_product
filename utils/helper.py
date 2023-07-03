@@ -10,6 +10,7 @@ Authors: Chen G.
 import glob
 import os
 import ee
+import coor_trans.img_transform as img_trans
 try:
     from osgeo import gdal
     from osgeo import osr
@@ -235,3 +236,12 @@ def compress_raster_batch(path, target_path, method="LZW"):
         driver.CreateCopy(outFile, dataset, strict=1,
                           options=["TILED=YES", "COMPRESS={0}".format(method), "BIGTIFF=YES"])
         del dataset
+
+
+# 图像坐标系转换+图像压缩
+def trans_compress(trans_dir, trans_crs, filename, filepath):
+    filepath_trans = os.path.join(trans_dir, filename)
+    temp_file = os.path.join(trans_dir, 'temp.tif')
+    img_trans.transform_imgfile(filepath, temp_file, "wgs84", trans_crs)
+    compress_raster(temp_file, filepath_trans)
+    os.remove(temp_file)

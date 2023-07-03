@@ -7,10 +7,11 @@ Authors: Chen G.
 Description: A wrapper function to process the Sentinel-2 MSI of base
 """
 
+import os
 import ee
 import geemap
 import datetime
-import wrapper
+import utils.wrapper as wrapper
 
 
 # set VPN port
@@ -20,14 +21,21 @@ try:
 except:
     ee.Authenticate()
     ee.Initialize()
+# os.environ['HTTP_PROXY'] = 'http://127.0.0.1:5188'
+# os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:5188'
+# ee.Authenticate()
+# ee.Initialize()
 
 ###########################################
 # Lingang Preprocessing
 ###########################################
 
 def lingang_preprocess(queryDate, export_crs, export_dir, trans_dir):
-    sdate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
-    edate = (sdate + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    # sdate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
+    # edate = (sdate + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    edate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
+    sdate = (edate + datetime.timedelta(days=-1)).strftime("%Y-%m-%d")
+    
     roi_lingang = ee.Geometry.Polygon(
         [
             [
@@ -98,7 +106,7 @@ def lingang_preprocess(queryDate, export_crs, export_dir, trans_dir):
         lingang_processed = wrapper.s2_preprocess(lingang_parameter)
     except Exception:
         # 打印异常信息
-        print('No cloudless images in Lingang on %s' % queryDate)
+        print('No cloudless images in Lingang on %s' % sdate)
     
     
 ###########################################
@@ -106,8 +114,11 @@ def lingang_preprocess(queryDate, export_crs, export_dir, trans_dir):
 ###########################################
 
 def dancheng_preprocess(queryDate, export_crs, export_dir, trans_dir):
-    sdate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
-    edate = (sdate + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    # sdate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
+    # edate = (sdate + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    edate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
+    sdate = (edate + datetime.timedelta(days=-1)).strftime("%Y-%m-%d")
+    
     roi_dancheng = ee.Geometry.Polygon(
         [
             [
@@ -157,4 +168,76 @@ def dancheng_preprocess(queryDate, export_crs, export_dir, trans_dir):
         dancheng_processed = wrapper.s2_preprocess(dancheng_parameter)
     except Exception:
         # 打印异常信息
-        print('No cloudless images in Dancheng on %s' % queryDate)
+        print('No cloudless images in Dancheng on %s' % sdate)
+
+
+###########################################
+# Chongming Preprocessing
+###########################################
+
+def chongming_preprocess(queryDate, export_crs, export_dir, trans_dir):
+    # sdate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
+    # edate = (sdate + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
+    edate = datetime.datetime.strptime(queryDate, "%Y-%m-%d")
+    sdate = (edate + datetime.timedelta(days=-1)).strftime("%Y-%m-%d")
+    
+    roi_chongming = ee.Geometry.MultiPolygon(
+        [
+            [
+                [
+                    [121.33306269168084,31.669574626976132],
+                    [121.3426497501584,31.66349241385966],
+                    [121.34483474448706,31.66603857855601],
+                    [121.34598516596186,31.665111075626164],
+                    [121.3501767263182,31.662582817382308],
+                    [121.3534541656061,31.666373034319296],
+                    [121.33843147852525,31.675750473994885],
+                    [121.33306269168084,31.669574626976132]
+                ]
+            ],
+            [
+                [
+                    [121.34015711385172,31.76617217014947],
+                    [121.35337834281562,31.76393815903682],
+                    [121.35567036808607,31.767781880053004],
+                    [121.35574610213526,31.76782649132005],
+                    [121.35813178675575,31.7719065754877],
+                    [121.35631244817212,31.77245505401968],
+                    [121.35801138252822,31.775308846423382],
+                    [121.34986906356089,31.777685528918695],
+                    [121.345427757458,31.77118865267576],
+                    [121.34323832394043,31.768058352281738],
+                    [121.34155278730978,31.768450763933362],
+                    [121.34015711385172,31.76617217014947]
+                ]
+            ]
+        ]
+    )
+    
+    chongming_parameter = {'START_DATE': sdate,
+                           'END_DATE': edate,
+                           'BANDS': ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12'],
+                           'ROI': roi_chongming,
+                           'MAX_CLOUD_PROBABILITY': 75,
+                           'CAL_NDVI': True,
+                           'CAL_NDMI': False,
+                           'CAL_NDRE': False,
+                           'EXPORT_CRS': export_crs,
+                           'EXPORT_SCALE': 10,
+                           'CLIP_TO_ROI': True,
+                           'EXPORT_NAME': 'chongming',
+                           'SAVE_LOCAL': True,
+                           'COOR_TRANS': True,
+                           'TRANS_CRS': 'gcj02',
+                           'RENDER': False,
+                           'RESAMPLE_SCALE': 150,
+                           'DOWNLOAD_DIR': export_dir,
+                           'TRANS_DIR': trans_dir
+                           }
+    
+    # processed s2 collection
+    try:
+        chongming_processed = wrapper.s2_preprocess(chongming_parameter)
+    except Exception:
+        # 打印异常信息
+        print('No cloudless images in Chongming on %s' % sdate)

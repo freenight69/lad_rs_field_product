@@ -10,7 +10,7 @@ except ImportError:
     import osr
 from shutil import copyfile
 import os
-from coord_transform import gcj02tobd09, bd09togcj02, wgs84togcj02, gcj02towgs84, wgs84tomercator, mercatortowgs84, \
+from coor_trans.coord_transform import gcj02tobd09, bd09togcj02, wgs84togcj02, gcj02towgs84, wgs84tomercator, mercatortowgs84, \
     bd09tomercator, mercatortobd09
 
 

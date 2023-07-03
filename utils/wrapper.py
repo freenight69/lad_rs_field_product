@@ -10,17 +10,9 @@ Description: A wrapper function to derive the Sentinel-2 MSI
 import ee
 import geemap
 import os
-import helper
-import img_transform as img_trans
-import cal_index as ci
-
-
-def trans_compress(trans_dir, trans_crs, filename, filepath):
-    filepath_trans = os.path.join(trans_dir, filename)
-    temp_file = os.path.join(trans_dir, 'temp.tif')
-    img_trans.transform_imgfile(filepath, temp_file, "wgs84", trans_crs)
-    helper.compress_raster(temp_file, filepath_trans)
-    os.remove(temp_file)
+import utils.helper as helper
+import coor_trans.img_transform as img_trans
+import utils.cal_index as ci
 
 
 ###########################################
@@ -181,8 +173,9 @@ def s2_preprocess(params):
         if not os.path.exists(DOWNLOAD_DIR):
             os.makedirs(DOWNLOAD_DIR)
         
-        sd = START_DATE.strftime("%Y-%m-%d")
-        outputDate = sd.replace('-', '')
+        # sd = START_DATE.strftime("%Y-%m-%d")
+        # outputDate = sd.replace('-', '')
+        outputDate = START_DATE.replace('-', '')
         
         filename_raw = EXPORT_NAME + '_DT_' + outputDate + '.tif'
         filename_ndvi = EXPORT_NAME + '_DT_ZS_' + outputDate + '.tif'
@@ -196,36 +189,40 @@ def s2_preprocess(params):
         print('Downloading image in {} on {}:'.format(EXPORT_NAME, outputDate))
         if CLIP_TO_ROI:
             # geemap.download_ee_image(img_raw, filepath_raw, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
-            # if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
-            #     trans_compress(TRANS_DIR, TRANS_CRS, filename_raw, filepath_raw)
+            # raw_size = os.path.getsize(filepath_raw)
+            # if COOR_TRANS and EXPORT_CRS == 'EPSG:4326' and raw_size < 51200:
+            #     helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_raw, filepath_raw)
             if CAL_NDVI:
                 geemap.download_ee_image(img_ndvi, filepath_ndvi, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
-                if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
-                    trans_compress(TRANS_DIR, TRANS_CRS, filename_ndvi, filepath_ndvi)
+                ndvi_size = os.path.getsize(filepath_ndvi)
+                if COOR_TRANS and EXPORT_CRS == 'EPSG:4326' and ndvi_size > 51200:
+                    helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_ndvi, filepath_ndvi)
             if CAL_NDMI:
                 geemap.download_ee_image(img_ndmi, filepath_ndmi, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
-                if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
-                    trans_compress(TRANS_DIR, TRANS_CRS, filename_ndmi, filepath_ndmi)
+                ndmi_size = os.path.getsize(filepath_ndmi)
+                if COOR_TRANS and EXPORT_CRS == 'EPSG:4326' and ndmi_size > 51200:
+                    helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_ndmi, filepath_ndmi)
             if CAL_NDRE:
                 geemap.download_ee_image(img_ndre, filepath_ndre, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
-                if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
-                    trans_compress(TRANS_DIR, TRANS_CRS, filename_ndre, filepath_ndre)
+                ndre_size = os.path.getsize(filepath_ndre)
+                if COOR_TRANS and EXPORT_CRS == 'EPSG:4326' and ndre_size > 51200:
+                    helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_ndre, filepath_ndre)
         else:
             # geemap.download_ee_image(img_raw, filepath_raw, region=footprintList[idx], crs=EXPORT_CRS, scale=EXPORT_SCALE)
             # if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
-            #     trans_compress(TRANS_DIR, TRANS_CRS, filename_raw, filepath_raw)
+            #     helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_raw, filepath_raw)
             if CAL_NDVI:
                 geemap.download_ee_image(img_ndvi, filepath_ndvi, region=footprintList[idx], crs=EXPORT_CRS, scale=EXPORT_SCALE)
                 if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
-                    trans_compress(TRANS_DIR, TRANS_CRS, filename_ndvi, filepath_ndvi)
+                    helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_ndvi, filepath_ndvi)
             if CAL_NDMI:
                 geemap.download_ee_image(img_ndmi, filepath_ndmi, region=footprintList[idx], crs=EXPORT_CRS, scale=EXPORT_SCALE)
                 if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
-                    trans_compress(TRANS_DIR, TRANS_CRS, filename_ndmi, filepath_ndmi)
+                    helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_ndmi, filepath_ndmi)
             if CAL_NDRE:
                 geemap.download_ee_image(img_ndre, filepath_ndre, region=footprintList[idx], crs=EXPORT_CRS, scale=EXPORT_SCALE)
                 if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
-                    trans_compress(TRANS_DIR, TRANS_CRS, filename_ndre, filepath_ndre)
+                    helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_ndre, filepath_ndre)
 
         # save visualization images to local
         if RENDER:
@@ -245,7 +242,7 @@ def s2_preprocess(params):
                 if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
                     filename_render_rgb = EXPORT_NAME + '_render_RGB_' + outputDate + '.tif'
                     filepath_render_rgb = os.path.join(DOWNLOAD_DIR, filename_render_rgb)
-                    # trans_compress(TRANS_DIR, TRANS_CRS, filename_render_rgb, filepath_render_rgb)
+                    # helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_render_rgb, filepath_render_rgb)
                     filepath_render_rgb_trans = os.path.join(TRANS_DIR, filename_render_rgb)
                     img_trans.transform_imgfile(filepath_render_rgb, filepath_render_rgb_trans, "wgs84", TRANS_CRS)
             else:
@@ -253,7 +250,7 @@ def s2_preprocess(params):
                 if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
                     filename_render_rgb = EXPORT_NAME + '_render_RGB_' + outputDate + '.tif'
                     filepath_render_rgb = os.path.join(DOWNLOAD_DIR, filename_render_rgb)
-                    # trans_compress(TRANS_DIR, TRANS_CRS, filename_render_rgb, filepath_render_rgb)
+                    # helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_render_rgb, filepath_render_rgb)
                     filepath_render_rgb_trans = os.path.join(TRANS_DIR, filename_render_rgb)
                     img_trans.transform_imgfile(filepath_render_rgb, filepath_render_rgb_trans, "wgs84", TRANS_CRS)
 
