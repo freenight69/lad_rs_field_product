@@ -1,0 +1,13 @@
+filter_bands: ['B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8', 'B8A', 'B11', 'B12']
+cloud_probability: 75
+ndvi: True
+ndmi: False
+ndre: False
+output_scale: 10
+output_name: 'lingang'
+clip_roi: True
+local: True
+transform: True
+transform_crs: 'gcj02'
+visualization: False
+visualized_scale: 150

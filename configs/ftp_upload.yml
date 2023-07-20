@@ -1,0 +1,5 @@
+ftp_host: '58.34.98.116'  # FTP服务器地址
+ftp_user: 'ftp_lankuaikei'  # FTP登录用户名
+ftp_passwd : 'xcnvdjfYdUnb3rtyUIiod113889'  # FTP登录密码
+
+remote_path: '/baseData/'  # 远程FTP路径

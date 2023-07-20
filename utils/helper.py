@@ -10,6 +10,8 @@ Authors: Chen G.
 import glob
 import os
 import ee
+import yaml
+from ftplib import FTP
 import coor_trans.img_transform as img_trans
 try:
     from osgeo import gdal
@@ -245,3 +247,36 @@ def trans_compress(trans_dir, trans_crs, filename, filepath):
     img_trans.transform_imgfile(filepath, temp_file, "wgs84", trans_crs)
     compress_raster(temp_file, filepath_trans)
     os.remove(temp_file)
+
+
+# 连接远程FTP并上传文件
+def ftp_upload(local_file, remote_filename):
+    with open('./configs/ftp_upload.yml', "r", encoding='utf-8') as f:
+        yml_data = yaml.safe_load(f)
+        
+        # FTP服务器信息
+        ftp_host = yml_data['ftp_host']  # FTP服务器地址
+        ftp_user = yml_data['ftp_user']    # FTP登录用户名
+        ftp_passwd = yml_data['ftp_passwd']  # FTP登录密码
+        remote_path = yml_data['remote_path']  # 远程FTP路径
+        
+        # 连接FTP服务器
+        try:
+            ftp = FTP(ftp_host)
+            ftp.login(user=ftp_user, passwd=ftp_passwd)
+            print('Successfully connect FTP!')
+        except Exception:
+            # 打印异常信息
+            print('Failed connect FTP!')
+        
+        
+        # 切换到远程目录
+        ftp.cwd(remote_path)
+        
+        # 上传文件
+        with open(local_file, "rb") as f:
+            ftp.storbinary("STOR " + remote_filename, f)
+
+        # 关闭FTP连接
+        ftp.quit()
+        print('{} has been uploaded to FTP!'.format(remote_filename))

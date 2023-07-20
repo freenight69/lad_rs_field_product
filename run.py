@@ -19,8 +19,8 @@ python run.py --queryDate 2023-06-01 --export_crs EPSG:4326 --export_dir J:/geos
 
 
 parser = argparse.ArgumentParser(description='Process Sentinel-2 data of each base daily')
-# parser.add_argument('--queryDate', default=datetime.datetime.now().strftime("%Y-%m-%d"), help='Query date')
-parser.add_argument('--queryDate', default='2023-06-16', help='Query date')
+parser.add_argument('--queryDate', default=datetime.datetime.now().strftime("%Y-%m-%d"), help='Query date')
+# parser.add_argument('--queryDate', default='2018-12-18', help='Query date')
 parser.add_argument('--export_crs', default="EPSG:4326", help='Export coordinate system')
 parser.add_argument(
     '--export_dir', 

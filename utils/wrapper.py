@@ -197,16 +197,22 @@ def s2_preprocess(params):
                 ndvi_size = os.path.getsize(filepath_ndvi)
                 if COOR_TRANS and EXPORT_CRS == 'EPSG:4326' and ndvi_size > 51200:
                     helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_ndvi, filepath_ndvi)
+                    filepath_trans = os.path.join(TRANS_DIR, filename_ndvi)
+                    helper.ftp_upload(filepath_trans, filename_ndvi)
             if CAL_NDMI:
                 geemap.download_ee_image(img_ndmi, filepath_ndmi, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
                 ndmi_size = os.path.getsize(filepath_ndmi)
                 if COOR_TRANS and EXPORT_CRS == 'EPSG:4326' and ndmi_size > 51200:
                     helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_ndmi, filepath_ndmi)
+                    filepath_trans = os.path.join(TRANS_DIR, filename_ndmi)
+                    helper.ftp_upload(filepath_trans, filename_ndmi)
             if CAL_NDRE:
                 geemap.download_ee_image(img_ndre, filepath_ndre, region=ROI, crs=EXPORT_CRS, scale=EXPORT_SCALE)
                 ndre_size = os.path.getsize(filepath_ndre)
                 if COOR_TRANS and EXPORT_CRS == 'EPSG:4326' and ndre_size > 51200:
                     helper.trans_compress(TRANS_DIR, TRANS_CRS, filename_ndre, filepath_ndre)
+                    filepath_trans = os.path.join(TRANS_DIR, filename_ndre)
+                    helper.ftp_upload(filepath_trans, filename_ndre)
         else:
             # geemap.download_ee_image(img_raw, filepath_raw, region=footprintList[idx], crs=EXPORT_CRS, scale=EXPORT_SCALE)
             # if COOR_TRANS and EXPORT_CRS == 'EPSG:4326':
